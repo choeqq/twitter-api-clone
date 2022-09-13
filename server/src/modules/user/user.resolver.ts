@@ -23,6 +23,7 @@ import {
   findUserFollowing,
   findUsers,
   followUser,
+  unfollowUser,
   verifyPassword,
 } from "./user.service";
 
@@ -88,6 +89,16 @@ class UserResolver {
   @Query(() => [User])
   async users() {
     return findUsers();
+  }
+
+  @Authorized()
+  @Mutation(() => User)
+  async unfollowUser(
+    @Arg("input") input: FollowUserInput,
+    @Ctx() context: Context
+  ) {
+    const result = await unfollowUser({ ...input, userId: context.user?.id! });
+    return result;
   }
 
   @Authorized()

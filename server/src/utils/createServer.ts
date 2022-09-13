@@ -20,6 +20,7 @@ app.register(fastifyCors, {
   credentials: true,
   origin: (origin, cb) => {
     if (
+      !origin ||
       ["http://localhost:3000", "https://studio.apollographql.com"].includes(
         origin
       )
@@ -31,13 +32,15 @@ app.register(fastifyCors, {
   },
 });
 
-app.register(fastifyCookie, { parseOption: {} });
+app.register(fastifyCookie, {
+  parseOptions: {},
+});
 
 app.register(fastifyJwt, {
   secret: "change-me",
   cookie: {
     cookieName: "token",
-    signed: "false",
+    signed: false,
   },
 });
 
@@ -53,16 +56,33 @@ function fastifyAppClosePlugin(app: FastifyInstance): ApolloServerPlugin {
   };
 }
 
-function buildContext({
+async function buildContext({
   request,
   reply,
   connectionParams,
 }: {
-  request: FastifyRequest;
-  reply: FastifyReply;
-  connectionParams: Object;
+  request?: FastifyRequest;
+  reply?: FastifyReply;
+  connectionParams?: {
+    Authorization: string;
+  };
 }) {
-  return { request, reply };
+  if (connectionParams || !request) {
+    try {
+      return {
+        user: await app.jwt.verify(connectionParams?.Authorization || ""),
+      };
+    } catch (e) {
+      return { user: null };
+    }
+  }
+
+  try {
+    const user = await request.jwtVerify();
+    return { request, reply, user };
+  } catch (e) {
+    return { request, reply, user: null };
+  }
 }
 
 export async function createServer() {

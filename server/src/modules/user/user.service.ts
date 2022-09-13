@@ -67,3 +67,14 @@ export async function followUser({
 export async function findUsers() {
   return prisma.user.findMany();
 }
+
+export async function findUserFollowing(userId: string) {
+  return prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      following: true,
+    },
+  });
+}

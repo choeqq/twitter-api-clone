@@ -18,6 +18,7 @@ import {
 import {
   createUser,
   findUserByEmailOrUsername,
+  findUserFollowing,
   findUsers,
   followUser,
   verifyPassword,
@@ -106,11 +107,14 @@ class UserResolver {
       items: [],
     };
   }
+
   @FieldResolver(() => UserFollowers)
-  following() {
+  async following(@Ctx() context: Context) {
+    const data = await findUserFollowing(context.user?.id!);
+
     return {
-      count: 0,
-      items: [],
+      count: data?.following.length,
+      items: data?.following,
     };
   }
 }

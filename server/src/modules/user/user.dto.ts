@@ -51,3 +51,9 @@ export class UserFollowers {
   @Field(() => [User])
   itmes: User[];
 }
+
+@InputType()
+export class FollowUserInput {
+  @Field()
+  username: string;
+}

@@ -8,10 +8,17 @@ import {
   Resolver,
 } from "type-graphql";
 import { Context } from "../../utils/createServer";
-import { LoginInput, RegisterUserInput, User, UserFollowers } from "./user.dto";
+import {
+  FollowUserInput,
+  LoginInput,
+  RegisterUserInput,
+  User,
+  UserFollowers,
+} from "./user.dto";
 import {
   createUser,
   findUserByEmailOrUsername,
+  followUser,
   verifyPassword,
 } from "./user.service";
 
@@ -71,6 +78,19 @@ class UserResolver {
     });
 
     return token;
+  }
+
+  @Mutation(() => User)
+  async followUser(
+    @Arg("input") input: FollowUserInput,
+    @Ctx() context: Context
+  ) {
+    try {
+      const result = await followUser({ ...input, userId: context.user?.id! });
+      return result;
+    } catch (e: any) {
+      throw new ApolloError(e);
+    }
   }
 
   @FieldResolver(() => UserFollowers)

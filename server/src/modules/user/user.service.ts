@@ -42,3 +42,24 @@ export async function verifyPassword({
 }) {
   return argon2.verify(password, candidatePassword);
 }
+
+export async function followUser({
+  userId,
+  username,
+}: {
+  userId: string;
+  username: string;
+}) {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      following: {
+        connect: {
+          username,
+        },
+      },
+    },
+  });
+}

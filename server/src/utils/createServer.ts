@@ -13,6 +13,7 @@ import { execute, GraphQLSchema, subscribe } from "graphql";
 import fastifyCors from "@fastify/cors";
 import fastifyCookie from "@fastify/cookie";
 import fastifyJwt from "@fastify/jwt";
+import { User } from "@prisma/client";
 
 const app = fastify({
   logger: true,
@@ -58,6 +59,8 @@ function fastifyAppClosePlugin(app: FastifyInstance): ApolloServerPlugin {
   };
 }
 
+type CtxUser = Omit<User, "password">;
+
 async function buildContext({
   request,
   reply,
@@ -72,7 +75,9 @@ async function buildContext({
   if (connectionParams || !request) {
     try {
       return {
-        user: await app.jwt.verify(connectionParams?.Authorization || ""),
+        user: await app.jwt.verify<CtxUser>(
+          connectionParams?.Authorization || ""
+        ),
       };
     } catch (e) {
       return { user: null };
@@ -80,7 +85,7 @@ async function buildContext({
   }
 
   try {
-    const user = await request.jwtVerify();
+    const user = await request.jwtVerify<CtxUser>();
     return { request, reply, user };
   } catch (e) {
     return { request, reply, user: null };

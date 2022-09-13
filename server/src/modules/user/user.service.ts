@@ -78,3 +78,14 @@ export async function findUserFollowing(userId: string) {
     },
   });
 }
+
+export async function findUserFollowedBy(userId: string) {
+  return prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      followedBy: true,
+    },
+  });
+}

@@ -14,6 +14,7 @@ import fastifyCors from "@fastify/cors";
 import fastifyCookie from "@fastify/cookie";
 import fastifyJwt from "@fastify/jwt";
 import { User } from "@prisma/client";
+import { bearerAuthChecker } from "./bearerAuthChecker";
 
 const app = fastify({
   logger: true,
@@ -97,6 +98,7 @@ export type Context = Awaited<ReturnType<typeof buildContext>>;
 export async function createServer() {
   const schema = await buildSchema({
     resolvers: [UserResolver],
+    authChecker: bearerAuthChecker,
   });
 
   const server = new ApolloServer({

@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-server-core";
 import {
   Arg,
+  Authorized,
   Ctx,
   FieldResolver,
   Mutation,
@@ -38,6 +39,7 @@ class UserResolver {
     }
   }
 
+  @Authorized()
   @Query(() => User)
   me(@Ctx() context: Context) {
     return context.user;
@@ -88,6 +90,7 @@ class UserResolver {
     return findUsers();
   }
 
+  @Authorized()
   @Mutation(() => User)
   async followUser(
     @Arg("input") input: FollowUserInput,
@@ -101,6 +104,7 @@ class UserResolver {
     }
   }
 
+  @Authorized()
   @FieldResolver(() => UserFollowers)
   async followers(@Ctx() context: Context) {
     const data = await findUserFollowedBy(context.user?.id!);
@@ -111,6 +115,7 @@ class UserResolver {
     };
   }
 
+  @Authorized()
   @FieldResolver(() => UserFollowers)
   async following(@Ctx() context: Context) {
     const data = await findUserFollowing(context.user?.id!);

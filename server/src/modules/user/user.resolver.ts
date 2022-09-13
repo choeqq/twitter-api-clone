@@ -18,6 +18,7 @@ import {
 import {
   createUser,
   findUserByEmailOrUsername,
+  findUsers,
   followUser,
   verifyPassword,
 } from "./user.service";
@@ -78,6 +79,11 @@ class UserResolver {
     });
 
     return token;
+  }
+
+  @Query(() => [User])
+  async users() {
+    return findUsers();
   }
 
   @Mutation(() => User)

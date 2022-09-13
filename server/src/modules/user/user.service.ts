@@ -63,3 +63,7 @@ export async function followUser({
     },
   });
 }
+
+export async function findUsers() {
+  return prisma.user.findMany();
+}

@@ -1,6 +1,6 @@
 import argon2 from "argon2";
 import prisma from "../../utils/prisma";
-import { RegisterUserInput } from "./user.dto";
+import { LoginInput, RegisterUserInput } from "./user.dto";
 
 export async function createUser(input: RegisterUserInput) {
   // hash the password
@@ -14,4 +14,31 @@ export async function createUser(input: RegisterUserInput) {
       password,
     },
   });
+}
+
+export async function findUserByEmailOrUsername(
+  input: LoginInput["usernameOrEmail"]
+) {
+  return prisma.user.findFirst({
+    where: {
+      OR: [
+        {
+          username: input,
+        },
+        {
+          email: input,
+        },
+      ],
+    },
+  });
+}
+
+export async function verifyPassword({
+  password,
+  candidatePassword,
+}: {
+  password: string;
+  candidatePassword: string;
+}) {
+  return argon2.verify(password, candidatePassword);
 }

@@ -30,3 +30,24 @@ export class RegisterUserInput {
   @Length(6, 56)
   password: string;
 }
+
+@InputType()
+export class LoginInput {
+  @Field({
+    nullable: false,
+  })
+  usernameOrEmail: string;
+
+  @Field()
+  @Length(6, 56)
+  password: string;
+}
+
+@ObjectType()
+export class UserFollowers {
+  @Field()
+  count: number;
+
+  @Field(() => [User])
+  itmes: User[];
+}

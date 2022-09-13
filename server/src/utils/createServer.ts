@@ -14,7 +14,9 @@ import fastifyCors from "@fastify/cors";
 import fastifyCookie from "@fastify/cookie";
 import fastifyJwt from "@fastify/jwt";
 
-const app = fastify();
+const app = fastify({
+  logger: true,
+});
 
 app.register(fastifyCors, {
   credentials: true,
@@ -84,6 +86,8 @@ async function buildContext({
     return { request, reply, user: null };
   }
 }
+
+export type Context = Awaited<ReturnType<typeof buildContext>>;
 
 export async function createServer() {
   const schema = await buildSchema({

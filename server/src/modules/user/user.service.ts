@@ -110,3 +110,11 @@ export async function findUserFollowedBy(userId: string) {
     },
   });
 }
+
+export async function findUserById(userId: string) {
+  return prisma.user.findFirst({
+    where: {
+      id: userId,
+    },
+  });
+}

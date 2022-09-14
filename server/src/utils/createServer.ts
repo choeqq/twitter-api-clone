@@ -15,6 +15,7 @@ import fastifyCookie from "@fastify/cookie";
 import fastifyJwt from "@fastify/jwt";
 import { User } from "@prisma/client";
 import { bearerAuthChecker } from "./bearerAuthChecker";
+import MessageResolver from "../modules/message/message.resolver";
 
 const app = fastify({
   logger: true,
@@ -97,7 +98,7 @@ export type Context = Awaited<ReturnType<typeof buildContext>>;
 
 export async function createServer() {
   const schema = await buildSchema({
-    resolvers: [UserResolver],
+    resolvers: [UserResolver, MessageResolver],
     authChecker: bearerAuthChecker,
   });
 
@@ -110,6 +111,8 @@ export async function createServer() {
     context: buildContext,
   });
 
+  subscriptionServer({ schema, server: app.server });
+
   return { app, server };
 }
 
@@ -118,14 +121,14 @@ const subscriptionServer = ({
   server,
 }: {
   schema: GraphQLSchema;
-  server: ApolloServer;
+  server: typeof app.server;
 }) => {
   return SubscriptionServer.create(
     {
       schema,
       execute,
       subscribe,
-      async onConnect(connectionParams: Object) {
+      async onConnect(connectionParams: { Authorization: string }) {
         return buildContext({ connectionParams });
       },
     },

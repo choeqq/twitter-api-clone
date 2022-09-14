@@ -4,14 +4,21 @@ import {
   Ctx,
   FieldResolver,
   Mutation,
+  PubSub,
+  PubSubEngine,
   Query,
   Resolver,
   Root,
+  Subscription,
 } from "type-graphql";
 import { Context } from "../../utils/createServer";
 import { findUserById } from "../user/user.service";
 import { CreateMessageInput, Message } from "./message.dto";
 import { createMessage, findMessages } from "./message.service";
+
+enum TriggerName {
+  NEW_MESSAGE = "NEW_MESSAGE",
+}
 
 @Resolver(Message)
 class MessageResolver {
@@ -19,9 +26,12 @@ class MessageResolver {
   @Mutation(() => Message)
   async createMessage(
     @Arg("input") input: CreateMessageInput,
-    @Ctx() context: Context
+    @Ctx() context: Context,
+    @PubSub() pubSub: PubSubEngine
   ) {
     const result = await createMessage({ ...input, userId: context.user?.id! });
+
+    await pubSub.publish(TriggerName.NEW_MESSAGE, result);
 
     return result;
   }
@@ -34,6 +44,13 @@ class MessageResolver {
   @Query(() => [Message])
   async messages() {
     return findMessages();
+  }
+
+  @Subscription(() => Message, {
+    topics: TriggerName.NEW_MESSAGE,
+  })
+  newMessage(@Root() message: Message): Message {
+    return message;
   }
 }
 

@@ -14,6 +14,6 @@ export function createMessage({ userId, ...input }: CreateMessageInput) {
   });
 }
 
-export function findMessages(filters: {}) {
+export function findMessages(filters?: {}) {
   return prisma.message.findMany();
 }

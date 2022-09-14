@@ -4,13 +4,14 @@ import {
   Ctx,
   FieldResolver,
   Mutation,
+  Query,
   Resolver,
   Root,
 } from "type-graphql";
 import { Context } from "../../utils/createServer";
 import { findUserById } from "../user/user.service";
 import { CreateMessageInput, Message } from "./message.dto";
-import { createMessage } from "./message.service";
+import { createMessage, findMessages } from "./message.service";
 
 @Resolver(Message)
 class MessageResolver {
@@ -28,6 +29,11 @@ class MessageResolver {
   @FieldResolver()
   async user(@Root() message: Message) {
     return findUserById(message.userId);
+  }
+
+  @Query(() => [Message])
+  async messages() {
+    return findMessages();
   }
 }
 
